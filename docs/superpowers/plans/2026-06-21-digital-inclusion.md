@@ -64,8 +64,8 @@ return [
     'db' => [
         'host' => '127.0.0.1',
         'name' => 'digital_inclusion',
-        'user' => 'root',
-        'pass' => '',            // set to your local MySQL root password
+        'user' => 'di_app',          // dedicated app user (root uses socket auth)
+        'pass' => 'di_pass_2026',    // created during environment setup
         'charset' => 'utf8mb4',
     ],
     // Default dashboard official created by seed.php
@@ -140,10 +140,10 @@ class Database
 - [ ] **Step 4: Write `sql/schema.sql`**
 
 ```sql
--- Digital Inclusion Assessment System schema (MySQL 8)
-CREATE DATABASE IF NOT EXISTS digital_inclusion
-    CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE digital_inclusion;
+-- Digital Inclusion Assessment System schema (MySQL 8).
+-- The `digital_inclusion` database and the `di_app` user are provisioned
+-- during environment setup (see README). This script creates the tables;
+-- `di_app` holds privileges only on this database, so no CREATE DATABASE here.
 
 -- One row per survey attempt. Anonymous: no phone number stored.
 CREATE TABLE IF NOT EXISTS responses (
@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 - [ ] **Step 5: Create DB and verify**
 
-Run: `mysql -u root -p < sql/schema.sql && mysql -u root -p -e "USE digital_inclusion; SHOW TABLES;"`
+Run: `mysql -h127.0.0.1 -udi_app -pdi_pass_2026 digital_inclusion < sql/schema.sql && mysql -h127.0.0.1 -udi_app -pdi_pass_2026 digital_inclusion -e "SHOW TABLES;"`
 Expected: lists `responses` and `users`.
 
 - [ ] **Step 6: Verify PDO connects**
@@ -491,7 +491,7 @@ Expected: `Seeded 30 responses across 3 cells.`
 
 - [ ] **Step 5: Verify spread + admin**
 
-Run: `mysql -u root -p -e "USE digital_inclusion; SELECT cell, COUNT(*) FROM responses GROUP BY cell; SELECT username FROM users;"`
+Run: `mysql -h127.0.0.1 -udi_app -pdi_pass_2026 digital_inclusion -e "SELECT cell, COUNT(*) FROM responses GROUP BY cell; SELECT username FROM users;"`
 Expected: 3 cells each with rows, `official` user present.
 
 - [ ] **Step 6: Commit**
@@ -791,7 +791,7 @@ Expected: starts with `CON Welcome to the Digital Inclusion Survey`.
 
 Run: `curl -s -X POST localhost:8000/ussd.php -d 'sessionId=t2&text=1*2*1*1*1*1*1*1*1'`
 Expected: `END Thank you for completing the survey. (Murakoze kuzuza ibarura.)`
-Then: `mysql -u root -p -e "USE digital_inclusion; SELECT cell,score,category FROM responses WHERE session_id='t2';"`
+Then: `mysql -h127.0.0.1 -udi_app -pdi_pass_2026 digital_inclusion -e "SELECT cell,score,category FROM responses WHERE session_id='t2';"`
 Expected: one row, cell `Nonko`, score 100, `Included`.
 
 - [ ] **Step 6: Verify simulator in browser**
@@ -1038,11 +1038,20 @@ Bilingual USSD digital-inclusion survey → MySQL → rule-based scorer → offi
 - PHP 8.x with `pdo_mysql`
 - MySQL 8
 
-Install (Ubuntu): `sudo apt install mysql-server php8.3-mysql && sudo systemctl start mysql`
+Install (Ubuntu): `sudo apt install mysql-server php8.3-mysql && sudo systemctl start mysql && sudo phpenmod pdo_mysql`
 
 ## Setup
-1. Set your MySQL password in `config/config.php` (`db.pass`).
-2. Create schema: `mysql -u root -p < sql/schema.sql`
+1. Provision the database + app user (run once, as MySQL admin):
+   ```sql
+   CREATE DATABASE digital_inclusion CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   CREATE USER 'di_app'@'127.0.0.1' IDENTIFIED BY 'di_pass_2026';
+   CREATE USER 'di_app'@'localhost' IDENTIFIED BY 'di_pass_2026';
+   GRANT ALL PRIVILEGES ON digital_inclusion.* TO 'di_app'@'127.0.0.1';
+   GRANT ALL PRIVILEGES ON digital_inclusion.* TO 'di_app'@'localhost';
+   FLUSH PRIVILEGES;
+   ```
+   (Default MySQL `root` uses socket auth; this dedicated user lets PHP connect over TCP. Change the password in both places + `config/config.php` if you like.)
+2. Create tables: `mysql -h127.0.0.1 -udi_app -pdi_pass_2026 digital_inclusion < sql/schema.sql`
 3. Seed data: `php sql/seed.php`
 4. Start server: `php -S localhost:8000 -t public`
 
