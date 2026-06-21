@@ -4,7 +4,7 @@
 $catOrder = ['Excluded','Low','Moderate','Included'];
 $catCounts = array_map(fn($c) => $categories[$c] ?? 0, $catOrder);
 $cellNames = array_keys($cells);
-$cellCounts = array_map(fn($c) => $c['count'], $cells);
+$cellCounts = array_values(array_map(fn($c) => $c['count'], $cells));
 ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,7 +31,7 @@ $cellCounts = array_map(fn($c) => $c['count'], $cells);
       <table><tr><th>Cell</th><th>Score</th><th>Category</th><th>When</th></tr>
         <?php foreach ($recent as $r): ?>
         <tr><td><?= htmlspecialchars($r['cell']) ?></td><td><?= $r['score'] ?></td>
-            <td><?= htmlspecialchars($r['category']) ?></td><td><?= $r['created_at'] ?></td></tr>
+            <td><?= htmlspecialchars($r['category']) ?></td><td><?= htmlspecialchars($r['created_at']) ?></td></tr>
         <?php endforeach; ?>
       </table>
     </div>
