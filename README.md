@@ -28,9 +28,26 @@ Install (Ubuntu): `sudo apt install mysql-server php8.3-mysql && sudo systemctl 
 - Dashboard: http://localhost:8000/index.php  (login: `official` / `changeme123`)
 
 ## Screenshots
-| USSD simulator | Official login | Dashboard |
+
+### USSD survey flow (bilingual EN/Kinyarwanda)
+| Consent | Cell select | Q2 | Q3 |
+| --- | --- | --- | --- |
+| ![](docs/screenshots/ussd/ussd-01-consent.png) | ![](docs/screenshots/ussd/ussd-02-cell.png) | ![](docs/screenshots/ussd/ussd-03-q2.png) | ![](docs/screenshots/ussd/ussd-04-q3.png) |
+
+| Q4 | Q5 | Q6 | Q7 |
+| --- | --- | --- | --- |
+| ![](docs/screenshots/ussd/ussd-05-q4.png) | ![](docs/screenshots/ussd/ussd-06-q5.png) | ![](docs/screenshots/ussd/ussd-07-q6.png) | ![](docs/screenshots/ussd/ussd-08-q7.png) |
+
+| Q8 | Survey complete | Consent declined |
 | --- | --- | --- |
-| ![USSD simulator](docs/screenshots/simulator.png) | ![Official login](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+| ![](docs/screenshots/ussd/ussd-09-q8.png) | ![](docs/screenshots/ussd/ussd-10-result.png) | ![](docs/screenshots/ussd/ussd-11-declined.png) |
+
+### Officials dashboard
+| Login | Overview (KPIs + charts) |
+| --- | --- |
+| ![](docs/screenshots/dashboard/dash-01-login.png) | ![](docs/screenshots/dashboard/dash-03-overview.png) |
+
+Full dashboard: ![](docs/screenshots/dashboard/dash-04-full-wide.png)
 
 ## Tests
 `php tests/run.php`
