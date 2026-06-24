@@ -27,6 +27,11 @@ Install (Ubuntu): `sudo apt install mysql-server php8.3-mysql && sudo systemctl 
 - USSD simulator: http://localhost:8000/simulator.php
 - Dashboard: http://localhost:8000/index.php  (login: `official` / `changeme123`)
 
+## Screenshots
+| USSD simulator | Official login | Dashboard |
+| --- | --- | --- |
+| ![USSD simulator](docs/screenshots/simulator.png) | ![Official login](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+
 ## Tests
 `php tests/run.php`
 
